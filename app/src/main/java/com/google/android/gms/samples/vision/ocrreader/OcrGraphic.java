@@ -51,6 +51,10 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
 
 
     OcrGraphic(GraphicOverlay overlay, TextBlock text) {
+        this(overlay, text, UniqID.generateID());
+    }
+
+    OcrGraphic(GraphicOverlay overlay, TextBlock text, int id) {
         super(overlay);
 
         mId = UniqID.generateID();

@@ -18,6 +18,9 @@ package com.google.android.gms.samples.vision.ocrreader;
 import android.graphics.RectF;
 import android.util.SparseArray;
 
+import com.google.android.gms.samples.vision.ocrreader.data.ContainerModel;
+import com.google.android.gms.samples.vision.ocrreader.data.Store;
+import com.google.android.gms.samples.vision.ocrreader.helper.UniqID;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.text.TextBlock;
@@ -48,10 +51,14 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
     public void receiveDetections(Detector.Detections<TextBlock> detections) {
         mGraphicOverlay.clear();
         SparseArray<TextBlock> items = detections.getDetectedItems();
+        int itemId;
         for (int i = 0; i < items.size(); ++i) {
             TextBlock item = items.valueAt(i);
             if(getNumberFromString(item.getValue()) != null) {
-                OcrGraphic graphic = new OcrGraphic(mGraphicOverlay, item);
+                itemId = UniqID.generateID();
+                OcrGraphic graphic = new OcrGraphic(mGraphicOverlay, item, itemId);
+                ContainerModel containerModel = new ContainerModel(itemId);
+                Store.getInstance().setContainer(containerModel);
                 mGraphicOverlay.add(graphic);
             }
         }

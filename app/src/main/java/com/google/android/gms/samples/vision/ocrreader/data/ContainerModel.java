@@ -14,7 +14,7 @@ public class ContainerModel {
         this(UniqID.generateID());
     }
 
-    ContainerModel(int id) {
+    public ContainerModel(int id) {
         mId = id;
     }
 

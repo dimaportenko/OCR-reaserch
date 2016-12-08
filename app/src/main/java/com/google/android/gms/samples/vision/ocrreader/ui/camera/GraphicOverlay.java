@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.vision.CameraSource;
 
 import java.util.HashSet;
@@ -133,6 +134,7 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     public void clear() {
         synchronized (mLock) {
             mGraphics.clear();
+            Store.getInstance().clearContainers();
         }
         postInvalidate();
     }
