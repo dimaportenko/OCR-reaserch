@@ -63,8 +63,6 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
             }
         }
 
-        TextGraphic countGraphic = new TextGraphic(mGraphicOverlay, new RectF(50, 50, 200, 100), "0");
-        mGraphicOverlay.add(countGraphic);
 
     }
 

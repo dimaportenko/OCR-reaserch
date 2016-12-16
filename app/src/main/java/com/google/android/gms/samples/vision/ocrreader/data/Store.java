@@ -11,9 +11,11 @@ public class Store implements DataSource {
     private static Store INSTANCE = null;
 
     private HashMap<Integer, ContainerModel> mContainers;
+    private HashMap<Integer, Float> mTotals;
 
     private Store() {
         mContainers = new HashMap<Integer, ContainerModel>();
+        mTotals = new HashMap<Integer, Float>();
     }
 
     public static Store getInstance() {
@@ -29,5 +31,22 @@ public class Store implements DataSource {
 
     public void clearContainers() {
         mContainers.clear();
+    }
+
+    public void setTotal(Integer id, Float total) {
+        mTotals.put(id, total);
+    }
+
+    public void clearTotals() {
+        mTotals.clear();
+    }
+
+    public Float getTotals() {
+        Float totals = new Float(0);
+        for (Float value : mTotals.values()) {
+            totals += value;
+        }
+
+        return totals;
     }
 }

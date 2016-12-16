@@ -44,6 +44,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSourcePreview;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
@@ -87,6 +88,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     // Helper objects for detecting taps and pinches.
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
+    private TextGraphic mTotalsGraphic;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -99,7 +101,8 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<OcrGraphic>) findViewById(R.id.graphicOverlay);
 
-
+        mTotalsGraphic = new TextGraphic(mGraphicOverlay, new RectF(50, 50, 200, 100), "0");
+        mGraphicOverlay.add(mTotalsGraphic);
 
         // read parameters from the intent used to launch the activity.
         boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
@@ -399,11 +402,12 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
         if (!isStopped) {
 //            mCameraSource.takePicture(null, mPicture);
-            totalsMap = new HashMap<>();
+//            totalsMap = new HashMap<>();
             mCameraSource.stop();
             isStopped = true;
             return false;
         }
+
 
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
         if (graphic != null) {
@@ -411,7 +415,14 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             mGraphicOverlay.getLocationOnScreen(location);
             boolean result = graphic.selectIn(rawX - location[0], rawY - location[1]);
             if (result) {
-                totalsMap.put(graphic, new Float(graphic.getTotals()));
+//                totalsMap.put(graphic, new Float(graphic.getTotals()));
+                graphic.updateTotals();
+                Log.d("totals", "local totals - " + graphic.getTotals());
+                Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
+                Float totals = Store.getInstance().getTotals();
+                Log.d("totals", "totals - " + totals);
+                mTotalsGraphic.setText(totals.toString());
+                mGraphicOverlay.add(mTotalsGraphic);
                 mGraphicOverlay.invalidate();
             }
         }
