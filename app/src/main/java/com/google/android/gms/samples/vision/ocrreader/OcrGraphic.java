@@ -18,8 +18,10 @@ package com.google.android.gms.samples.vision.ocrreader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 
 import com.google.android.gms.samples.vision.ocrreader.helper.UniqID;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
@@ -64,7 +66,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         if (sRectPaint == null) {
             sRectPaint = new Paint();
             sRectPaint.setColor(TEXT_COLOR);
-            sRectPaint.setStyle(Paint.Style.STROKE);
+            sRectPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             sRectPaint.setStrokeWidth(4.0f);
         }
 
@@ -172,14 +174,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         for(Text currentText : mElements) {
             sRectPaint.setColor(TEXT_COLOR);
             sTextPaint.setColor(TEXT_COLOR);
-            drawElement(canvas, currentText);
+            drawElement(canvas, currentText, Color.BLACK);
             updateTotals();
         }
 
         for(Text currentText : mActiveElements) {
             sRectPaint.setColor(TEXT_COLOR_ACTIVE);
             sTextPaint.setColor(TEXT_COLOR_ACTIVE);
-            drawElement(canvas, currentText);
+            drawElement(canvas, currentText, Color.BLUE);
             updateTotals();
         }
     }
@@ -197,19 +199,19 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         return totals;
     }
 
-    private void drawElement(Canvas canvas, Text currentText) {
+    private void drawElement(Canvas canvas, Text currentText, int centerColor) {
         RectF rect = new RectF(currentText.getBoundingBox());
         rect.left = translateX(rect.left);
         rect.top = translateY(rect.top);
         rect.right = translateX(rect.right);
         rect.bottom = translateY(rect.bottom);
-        canvas.drawRect(rect, sRectPaint);
+        sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float)(rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
+        canvas.drawOval(rect, sRectPaint);
 
-        float left = translateX(currentText.getBoundingBox().left);
-        float bottom = translateY(currentText.getBoundingBox().bottom);
         String value = getNumberFromString(currentText.getValue());
         if(value != null) {
-            canvas.drawText(value, left, bottom, sTextPaint);
+            sTextPaint.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText(value, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
         }
     }
 
