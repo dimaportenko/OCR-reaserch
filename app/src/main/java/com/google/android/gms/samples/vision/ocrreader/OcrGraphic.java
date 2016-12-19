@@ -41,8 +41,10 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
 
     private int mId;
 
-    private static final int TEXT_COLOR = Color.WHITE;
-    private static final int TEXT_COLOR_ACTIVE = Color.BLUE;
+    private static final int TEXT_COLOR = 0x7FFFFFFF;
+    private static final int TEXT_COLOR_ACTIVE = 0x7FFFFFFF;
+    private static final int BACKGROUND_COLOR = 0x7F000000;
+    private static final int BACKGROUND_COLOR_ACTIVE = 0x7F0000FF;
 
     private static Paint sRectPaint;
     private static Paint sTextPaint;
@@ -174,14 +176,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         for(Text currentText : mElements) {
             sRectPaint.setColor(TEXT_COLOR);
             sTextPaint.setColor(TEXT_COLOR);
-            drawElement(canvas, currentText, Color.BLACK);
+            drawElement(canvas, currentText, BACKGROUND_COLOR);
             updateTotals();
         }
 
         for(Text currentText : mActiveElements) {
             sRectPaint.setColor(TEXT_COLOR_ACTIVE);
             sTextPaint.setColor(TEXT_COLOR_ACTIVE);
-            drawElement(canvas, currentText, Color.BLUE);
+            drawElement(canvas, currentText, BACKGROUND_COLOR_ACTIVE);
             updateTotals();
         }
     }
