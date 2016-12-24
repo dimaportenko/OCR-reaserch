@@ -696,6 +696,7 @@ public class CameraSource {
 
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
+
             if (mDelegate != null) {
                 mDelegate.onPictureTaken(data);
             }

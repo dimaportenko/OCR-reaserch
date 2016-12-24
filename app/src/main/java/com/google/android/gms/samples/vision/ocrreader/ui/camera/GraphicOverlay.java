@@ -16,7 +16,9 @@
 package com.google.android.gms.samples.vision.ocrreader.ui.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -191,6 +193,13 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
         postInvalidate();
     }
 
+    private Bitmap mBitmapPicture = null;
+    private Paint paint = new Paint();
+
+    public void setBitmapPicture(Bitmap picture, int width, int height) {
+        mBitmapPicture = Bitmap.createScaledBitmap(picture, width, height, true);;
+    }
+
     /**
      * Draws the overlay with its associated graphic objects.
      */
@@ -202,6 +211,10 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
             if ((mPreviewWidth != 0) && (mPreviewHeight != 0)) {
                 mWidthScaleFactor = (float) canvas.getWidth() / (float) mPreviewWidth;
                 mHeightScaleFactor = (float) canvas.getHeight() / (float) mPreviewHeight;
+            }
+
+            if (mBitmapPicture != null) {
+                canvas.drawBitmap(mBitmapPicture, 0, 0, paint);
             }
 
             for (Graphic graphic : mGraphics) {

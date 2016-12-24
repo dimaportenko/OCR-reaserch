@@ -25,6 +25,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Build;
@@ -89,6 +91,9 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
     private TextGraphic mTotalsGraphic;
+
+    //
+    private byte[] mPictureData = null;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -332,24 +337,37 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
         @Override
         public void onPictureTaken(byte[] data) {
-
+            Log.d(TAG, "onPictureTaken");
             mCameraSource.stop();
 
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-            if (pictureFile == null){
-                Log.d(TAG, "Error creating media file, check storage permissions: ");
-                return;
-            }
+            mPictureData = data;
 
-            try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                fos.close();
-            } catch (FileNotFoundException e) {
-                Log.d(TAG, "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d(TAG, "Error accessing file: " + e.getMessage());
-            }
+            int width = getWindowManager().getDefaultDisplay().getWidth();
+            int height = getWindowManager().getDefaultDisplay().getHeight();
+
+            BitmapFactory.Options scalingOptions = new BitmapFactory.Options();
+//            scalingOptions.inSampleSize = camera.getParameters().getPictureSize().width / imageView.getMeasuredWidth();
+            final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, scalingOptions);
+            mGraphicOverlay.setBitmapPicture(bmp, width, height);
+            mGraphicOverlay.invalidate();
+//            imageView.setImageBitmap(bmp);
+//            imageView.setVisibility(ImageView.VISIBLE);
+
+//            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//            if (pictureFile == null){
+//                Log.d(TAG, "Error creating media file, check storage permissions: ");
+//                return;
+//            }
+//
+//            try {
+//                FileOutputStream fos = new FileOutputStream(pictureFile);
+//                fos.write(data);
+//                fos.close();
+//            } catch (FileNotFoundException e) {
+//                Log.d(TAG, "File not found: " + e.getMessage());
+//            } catch (IOException e) {
+//                Log.d(TAG, "Error accessing file: " + e.getMessage());
+//            }
         }
     };
     /** Create a File for saving an image or video */
@@ -401,13 +419,12 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     private boolean onTap(float rawX, float rawY) {
 
         if (!isStopped) {
-//            mCameraSource.takePicture(null, mPicture);
+            mCameraSource.takePicture(null, mPicture);
 //            totalsMap = new HashMap<>();
-            mCameraSource.stop();
+//            mCameraSource.stop();
             isStopped = true;
             return false;
         }
-
 
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
         if (graphic != null) {
