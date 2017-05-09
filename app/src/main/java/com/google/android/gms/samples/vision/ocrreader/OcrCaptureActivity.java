@@ -25,11 +25,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -398,15 +400,21 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      */
     private HashMap<OcrGraphic, Float> totalsMap = null;
     private boolean isStopped = false;
-    private boolean onTap(float rawX, float rawY) {
+    private boolean onTap(MotionEvent event) {
 
         if (!isStopped) {
 //            mCameraSource.takePicture(null, mPicture);
 //            totalsMap = new HashMap<>();
-            mCameraSource.stop();
-            isStopped = true;
+
+            onFocusTap(event);
+
+//            mCameraSource.stop();
+//            isStopped = true;
             return false;
         }
+
+        float rawX = event.getRawX();
+        float rawY = event.getRawY();
 
 
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
@@ -428,29 +436,56 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         }
         TextBlock text = null;
 
-//        if (graphic != null) {
-//            text = graphic.getTextBlock();
-//            if (text != null && text.getValue() != null) {
-//                Intent data = new Intent();
-//                data.putExtra(TextBlockObject, text.getValue());
-//                setResult(CommonStatusCodes.SUCCESS, data);
-//                finish();
-//            }
-//            else {
-//                Log.d(TAG, "text data is null");
-//            }
-//        }
-//        else {
-//            Log.d(TAG,"no text detected");
-//        }
         return text != null;
+    }
+
+    private boolean listenerSet = false;
+    private boolean onFocusTap(MotionEvent event) {
+//        if (!listenerSet) {
+//            return false;
+//        }
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            float x = event.getX();
+            float y = event.getY();
+
+            Rect touchRect = new Rect(
+                    (int)(x - 100),
+                    (int)(y - 100),
+                    (int)(x + 100),
+                    (int)(y + 100));
+
+            final Rect targetFocusRect = new Rect(
+                    touchRect.left * 2000/mPreview.getWidth() - 1000,
+                    touchRect.top * 2000/mPreview.getHeight() - 1000,
+                    touchRect.right * 2000/mPreview.getWidth() - 1000,
+                    touchRect.bottom * 2000/mPreview.getHeight() - 1000);
+
+            mCameraSource.doTouchFocus(targetFocusRect);
+//            if (drawingViewSet) {
+//                drawingView.setHaveTouch(true, touchRect);
+//                drawingView.invalidate();
+//
+//                // Remove the square after some time
+//                Handler handler = new Handler();
+//                handler.postDelayed(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        drawingView.setHaveTouch(false, new Rect(0, 0, 0, 0));
+//                        drawingView.invalidate();
+//                    }
+//                }, 1000);
+//            }
+
+        }
+        return false;
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            return onTap(e.getRawX(), e.getRawY()) || super.onSingleTapConfirmed(e);
+            return onTap(e) || super.onSingleTapConfirmed(e);
         }
     }
 
