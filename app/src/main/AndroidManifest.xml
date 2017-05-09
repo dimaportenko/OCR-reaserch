@@ -20,7 +20,7 @@
             android:value="ocr" />
 
         <activity
-            android:name="com.google.android.gms.samples.vision.ocrreader.MainActivity"
+            android:name="com.google.android.gms.samples.vision.ocrreader.OcrCaptureActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,8 +29,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.google.android.gms.samples.vision.ocrreader.OcrCaptureActivity"
-            android:label="Read Text" />
     </application>
 
 </manifest>
