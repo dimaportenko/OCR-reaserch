@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -1214,4 +1215,42 @@ public class CameraSource {
             }
         }
     }
+
+    /**
+     * Called from outside to set touch focus.
+     *
+     * @param - Rect - new area for auto focus
+     */
+    public void doTouchFocus(final Rect tfocusRect) {
+        Log.i(TAG, "TouchFocus");
+        try {
+            final List<Camera.Area> focusList = new ArrayList<Camera.Area>();
+            Camera.Area focusArea = new Camera.Area(tfocusRect, 1000);
+            focusList.add(focusArea);
+
+            Camera.Parameters para = mCamera.getParameters();
+            para.setFocusAreas(focusList);
+            para.setMeteringAreas(focusList);
+            mCamera.setParameters(para);
+
+            mCamera.autoFocus(myAutoFocusCallback);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.i(TAG, "Unable to autofocus");
+        }
+
+    }
+
+    /**
+     * AutoFocus callback
+     */
+    Camera.AutoFocusCallback myAutoFocusCallback = new Camera.AutoFocusCallback(){
+
+        @Override
+        public void onAutoFocus(boolean arg0, Camera arg1) {
+            if (arg0){
+                mCamera.cancelAutoFocus();
+            }
+        }
+    };
 }
