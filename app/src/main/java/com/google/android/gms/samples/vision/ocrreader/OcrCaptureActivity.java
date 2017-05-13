@@ -47,6 +47,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.samples.vision.ocrreader.data.Store;
+import com.google.android.gms.samples.vision.ocrreader.ui.UIView;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSourcePreview;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
@@ -106,6 +107,9 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         mTotalsGraphic = new TextGraphic(mGraphicOverlay, new RectF(50, 50, 200, 100), "0");
         mGraphicOverlay.add(mTotalsGraphic);
 
+        drawingView = (UIView) findViewById(R.id.uiview);
+        drawingViewSet = true;
+
         // read parameters from the intent used to launch the activity.
         boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
         boolean useFlash = getIntent().getBooleanExtra(UseFlash, false);
@@ -121,10 +125,6 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-
-        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG)
-                .show();
     }
 
     /**
@@ -439,11 +439,10 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         return text != null;
     }
 
-    private boolean listenerSet = false;
+    private UIView drawingView;
+    private boolean drawingViewSet = false;
+
     private boolean onFocusTap(MotionEvent event) {
-//        if (!listenerSet) {
-//            return false;
-//        }
         if(event.getAction() == MotionEvent.ACTION_DOWN){
             float x = event.getX();
             float y = event.getY();
@@ -461,24 +460,29 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                     touchRect.bottom * 2000/mPreview.getHeight() - 1000);
 
             mCameraSource.doTouchFocus(targetFocusRect);
-//            if (drawingViewSet) {
-//                drawingView.setHaveTouch(true, touchRect);
-//                drawingView.invalidate();
-//
-//                // Remove the square after some time
-//                Handler handler = new Handler();
-//                handler.postDelayed(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        drawingView.setHaveTouch(false, new Rect(0, 0, 0, 0));
-//                        drawingView.invalidate();
-//                    }
-//                }, 1000);
-//            }
+            if (drawingViewSet) {
+                drawingView.setHaveTouch(true, touchRect);
+                drawingView.invalidate();
+
+                // Remove the square after some time
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        drawingView.setHaveTouch(false, new Rect(0, 0, 0, 0));
+                        drawingView.invalidate();
+                    }
+                }, 1000);
+            }
 
         }
         return false;
+    }
+
+    public void photoButtonAction(View view) {
+        mCameraSource.stop();
+        isStopped = true;
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {
