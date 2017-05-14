@@ -33,6 +33,11 @@ public class Store implements DataSource {
         mContainers.clear();
     }
 
+    public void clear() {
+        clearContainers();
+        clearTotals();
+    }
+
     public void setTotal(Integer id, Float total) {
         mTotals.put(id, total);
     }

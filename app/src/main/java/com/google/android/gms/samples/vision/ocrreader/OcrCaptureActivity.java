@@ -39,6 +39,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,6 +94,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
     // UI elements
     private TextView mTotalsView;
+    private Button mCameraButton;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -107,7 +109,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
 
         mTotalsView = (TextView) findViewById(R.id.totals);
-
+        mCameraButton = (Button) findViewById(R.id.camera_button);
         drawingView = (UIView) findViewById(R.id.uiview);
         drawingViewSet = true;
 
@@ -480,8 +482,25 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     }
 
     public void photoButtonAction(View view) {
-        mCameraSource.stop();
-        isStopped = true;
+        if(isStopped) {
+            try {
+                startCameraSource();
+            } catch (SecurityException exception) {
+                Log.e(TAG, "Unable to start camera source.", exception);
+            }
+            Store.getInstance().clear();
+            isStopped = false;
+            resetUI();
+        } else {
+            mCameraSource.stop();
+            isStopped = true;
+            mCameraButton.setText(getString(R.string.camera_button_alt));
+        }
+    }
+
+    public void resetUI() {
+        mTotalsView.setText("");
+        mCameraButton.setText(getString(R.string.camera_button_main));
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {
