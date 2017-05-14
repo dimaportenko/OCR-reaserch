@@ -227,7 +227,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             found = true;
         }
         if(found) {
-            return sBuffer.toString();
+            String number = sBuffer.toString();
+            number = number.replaceAll("\\D", ".");
+            String[] parts = number.split("\\.", 2);
+            if(parts.length > 1) {
+                number = parts[0] + "." + parts[1].replaceAll("\\.", "");
+            }
+
+            return number;
         } else {
             return null;
         }
