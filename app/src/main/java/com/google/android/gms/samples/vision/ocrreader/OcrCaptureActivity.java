@@ -26,9 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -41,11 +39,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.samples.vision.ocrreader.ui.UIView;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSource;
@@ -91,7 +90,9 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     // Helper objects for detecting taps and pinches.
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
-    private TextGraphic mTotalsGraphic;
+
+    // UI elements
+    private TextView mTotalsView;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -104,8 +105,8 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<OcrGraphic>) findViewById(R.id.graphicOverlay);
 
-        mTotalsGraphic = new TextGraphic(mGraphicOverlay, new RectF(50, 50, 200, 100), "0");
-        mGraphicOverlay.add(mTotalsGraphic);
+
+        mTotalsView = (TextView) findViewById(R.id.totals);
 
         drawingView = (UIView) findViewById(R.id.uiview);
         drawingViewSet = true;
@@ -408,8 +409,6 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
             onFocusTap(event);
 
-//            mCameraSource.stop();
-//            isStopped = true;
             return false;
         }
 
@@ -429,8 +428,8 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                 Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
                 Float totals = Store.getInstance().getTotals();
                 Log.d("totals", "totals - " + totals);
-                mTotalsGraphic.setText(totals.toString());
-                mGraphicOverlay.add(mTotalsGraphic);
+
+                mTotalsView.setText(totals.toString());
                 mGraphicOverlay.invalidate();
             }
         }
