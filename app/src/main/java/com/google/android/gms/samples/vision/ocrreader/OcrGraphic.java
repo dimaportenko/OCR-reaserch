@@ -176,14 +176,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         for(Text currentText : mElements) {
             sRectPaint.setColor(TEXT_COLOR);
             sTextPaint.setColor(TEXT_COLOR);
-            drawElement(canvas, currentText, BACKGROUND_COLOR);
+            drawElement(canvas, currentText, BACKGROUND_COLOR, false);
             updateTotals();
         }
 
         for(Text currentText : mActiveElements) {
             sRectPaint.setColor(TEXT_COLOR_ACTIVE);
             sTextPaint.setColor(TEXT_COLOR_ACTIVE);
-            drawElement(canvas, currentText, BACKGROUND_COLOR_ACTIVE);
+            drawElement(canvas, currentText, BACKGROUND_COLOR_ACTIVE, true);
             updateTotals();
         }
     }
@@ -201,7 +201,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         return totals;
     }
 
-    private void drawElement(Canvas canvas, Text currentText, int centerColor) {
+    private void drawElement(Canvas canvas, Text currentText, int centerColor, boolean isActive) {
         RectF rect = new RectF(currentText.getBoundingBox());
         rect.left = translateX(rect.left);
         rect.top = translateY(rect.top);
@@ -214,6 +214,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         if(value != null) {
             sTextPaint.setTextAlign(Paint.Align.CENTER);
             canvas.drawText(value, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
+        }
+
+        if(isActive) {
+            float width = rect.width();
+            rect.left -= width;
+            rect.right -= width;
+            sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float) (rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
+            canvas.drawOval(rect, sRectPaint);
         }
     }
 
