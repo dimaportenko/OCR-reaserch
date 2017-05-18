@@ -53,6 +53,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
     private List<Text> mElements = new ArrayList<Text>();
     private List<Text> mActiveElements = new ArrayList<Text>();
 
+    private String mTestText = "1/1";
 
     OcrGraphic(GraphicOverlay overlay, TextBlock text) {
         this(overlay, text, UniqID.generateID());
@@ -156,6 +157,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
                 mElements.add(text);
                 return true;
             }
+
+            float width = rect.width();
+            rect.left -= width;
+            rect.right -= width;
+            if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
+                mTestText = "1/2";
+                return false;
+            }
         }
         return false;
     }
@@ -222,6 +231,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rect.right -= width;
             sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float) (rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
             canvas.drawOval(rect, sRectPaint);
+            canvas.drawText(mTestText, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
         }
     }
 
