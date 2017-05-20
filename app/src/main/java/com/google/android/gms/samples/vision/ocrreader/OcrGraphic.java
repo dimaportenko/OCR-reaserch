@@ -55,6 +55,11 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
 
     private String mTestText = "1/1";
 
+    public static final int OCR_GRAPHIC_SELECT_RESULT_SELECT = 1;
+    public static final int OCR_GRAPHIC_SELECT_RESULT_UNSELECT = 2;
+    public static final int OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION = 3;
+    public static final int OCR_GRAPHIC_SELECT_RESULT_NOT_FOUND = 4;
+
     OcrGraphic(GraphicOverlay overlay, TextBlock text) {
         this(overlay, text, UniqID.generateID());
     }
@@ -127,6 +132,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         rect.top = translateY(rect.top);
         rect.right = translateX(rect.right);
         rect.bottom = translateY(rect.bottom);
+        rect.left -= rect.width();
         return (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y);
     }
 
@@ -139,14 +145,14 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         return rect;
     }
 
-    public boolean selectIn(float x, float y) {
+    public int selectIn(float x, float y) {
         for(Text text : mElements) {
             Rect box = text.getBoundingBox();
             RectF rect = traslateBox(new RectF(box));
             if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
                 mElements.remove(text);
                 mActiveElements.add(text);
-                return true;
+                return OCR_GRAPHIC_SELECT_RESULT_SELECT;
             }
         }
 
@@ -155,7 +161,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
                 mActiveElements.remove(text);
                 mElements.add(text);
-                return true;
+                return OCR_GRAPHIC_SELECT_RESULT_UNSELECT;
             }
 
             float width = rect.width();
@@ -163,10 +169,11 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rect.right -= width;
             if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
                 mTestText = "1/2";
-                return false;
+                mOverlay.invalidate();
+                return OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION;
             }
         }
-        return false;
+        return OCR_GRAPHIC_SELECT_RESULT_NOT_FOUND;
     }
 
     /**

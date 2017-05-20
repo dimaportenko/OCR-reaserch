@@ -21,4 +21,23 @@ public class ContainerModel {
     public int getId() {
         return mId;
     }
+
+    private int mAmount = 1;
+    private int mTotalAmount = 1;
+
+    public int getmAmount() {
+        return mAmount;
+    }
+
+    public void setmAmount(int mAmount) {
+        this.mAmount = mAmount;
+    }
+
+    public int getmTotalAmount() {
+        return mTotalAmount;
+    }
+
+    public void setmTotalAmount(int mTotalAmount) {
+        this.mTotalAmount = mTotalAmount;
+    }
 }

@@ -14,4 +14,7 @@
     <string name="ocr_error">"Error reading text: %1$s"</string>
     <string name="camera_button_main">"Photo"</string>
     <string name="camera_button_alt">"Retake"</string>
+    <string name="amount_picker_message"></string>
+    <string name="amount_picker_ok">Ok</string>
+    <string name="amount_picker_cancel">Cancel</string>
 </resources>

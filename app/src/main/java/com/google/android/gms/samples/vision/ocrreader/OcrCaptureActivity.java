@@ -48,6 +48,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.samples.vision.ocrreader.ui.UIView;
+import com.google.android.gms.samples.vision.ocrreader.ui.camera.AmountPickerFragment;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSourcePreview;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
@@ -422,18 +423,34 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         if (graphic != null) {
             int[] location = new int[2];
             mGraphicOverlay.getLocationOnScreen(location);
-            boolean result = graphic.selectIn(rawX - location[0], rawY - location[1]);
-            if (result) {
-//                totalsMap.put(graphic, new Float(graphic.getTotals()));
-                graphic.updateTotals();
-                Log.d("totals", "local totals - " + graphic.getTotals());
-                Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
-                Float totals = Store.getInstance().getTotals();
-                Log.d("totals", "totals - " + totals);
+            int result = graphic.selectIn(rawX - location[0], rawY - location[1]);
 
-                mTotalsView.setText(totals.toString());
-                mGraphicOverlay.invalidate();
+            switch (result) {
+                case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_SELECT:
+                case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_UNSELECT: {
+                    graphic.updateTotals();
+                    Log.d("totals", "local totals - " + graphic.getTotals());
+                    Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
+                    Float totals = Store.getInstance().getTotals();
+                    Log.d("totals", "totals - " + totals);
+
+                    mTotalsView.setText(totals.toString());
+                    break;
+                }
+                case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION: {
+                    AmountPickerFragment pickerFragment = new AmountPickerFragment();
+                    pickerFragment.show(getSupportFragmentManager(), "NoticeDialogFragment");
+                    break;
+                }
+                case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_NOT_FOUND:
+                default: {
+
+                    break;
+                }
+
             }
+
+            mGraphicOverlay.invalidate();
         }
         TextBlock text = null;
 
