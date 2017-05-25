@@ -7,4 +7,8 @@ package com.google.android.gms.samples.vision.ocrreader.data;
 public class AmountModel {
     public int amount = 1;
     public int total = 1;
+
+    public float ratio() {
+        return (float)amount / (float)total;
+    }
 }

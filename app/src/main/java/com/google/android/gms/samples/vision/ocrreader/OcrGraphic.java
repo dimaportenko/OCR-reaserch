@@ -23,6 +23,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
+import com.google.android.gms.samples.vision.ocrreader.data.AmountModel;
+import com.google.android.gms.samples.vision.ocrreader.data.ContainerModel;
+import com.google.android.gms.samples.vision.ocrreader.helper.DataConvertor;
 import com.google.android.gms.samples.vision.ocrreader.helper.UniqID;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.text.Text;
@@ -53,23 +56,24 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
     private List<Text> mElements = new ArrayList<Text>();
     private List<Text> mActiveElements = new ArrayList<Text>();
 
-    private String mTestText = "1/1";
+    private ContainerModel mContainer;
 
     public static final int OCR_GRAPHIC_SELECT_RESULT_SELECT = 1;
     public static final int OCR_GRAPHIC_SELECT_RESULT_UNSELECT = 2;
     public static final int OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION = 3;
     public static final int OCR_GRAPHIC_SELECT_RESULT_NOT_FOUND = 4;
 
-    OcrGraphic(GraphicOverlay overlay, TextBlock text) {
-        this(overlay, text, UniqID.generateID());
+    OcrGraphic(GraphicOverlay overlay, ContainerModel container) {
+        this(overlay, container, UniqID.generateID());
     }
 
-    OcrGraphic(GraphicOverlay overlay, TextBlock text, int id) {
+    OcrGraphic(GraphicOverlay overlay, ContainerModel container, int id) {
         super(overlay);
 
-        mId = UniqID.generateID();
-        mText = text;
-        updateElementsList();
+        mId = id;
+        mContainer = container;
+        mText = container.getText();
+        mElements = container.getElements();
 
         if (sRectPaint == null) {
             sRectPaint = new Paint();
@@ -86,22 +90,6 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         // Redraw the overlay, as this graphic has been added.
         postInvalidate();
     }
-
-    private void updateElementsList() {
-        if (mText != null) {
-            List<? extends Text> textComponents = mText.getComponents();
-            for(Text line : textComponents) {
-                List<? extends Text> lineComponents = line.getComponents();
-                for (Text currentText : lineComponents) {
-                    String value = getNumberFromString(currentText.getValue());
-                    if (value != null) {
-                        mElements.add(currentText);
-                    }
-                }
-            }
-        }
-    }
-
 
     public int getId() {
         return mId;
@@ -168,7 +156,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rect.left -= width;
             rect.right -= width;
             if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
-                mTestText = "1/2";
+                mContainer.setSelectedText(text);
                 mOverlay.invalidate();
                 return OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION;
             }
@@ -208,7 +196,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
     public void updateTotals() {
         totals = 0;
         for(Text currentText : mActiveElements) {
-            String number = getNumberFromString(currentText.getValue());
+            String number = DataConvertor.getNumberFromString(currentText.getValue());
             totals += Float.valueOf(number);
         }
     }
@@ -226,7 +214,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float)(rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
         canvas.drawOval(rect, sRectPaint);
 
-        String value = getNumberFromString(currentText.getValue());
+        String value = DataConvertor.getNumberFromString(currentText.getValue());
         if(value != null) {
             sTextPaint.setTextAlign(Paint.Align.CENTER);
             canvas.drawText(value, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
@@ -238,30 +226,8 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rect.right -= width;
             sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float) (rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
             canvas.drawOval(rect, sRectPaint);
-            canvas.drawText(mTestText, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
-        }
-    }
-
-    public String getNumberFromString(String string) {
-        StringBuffer sBuffer = new StringBuffer();
-        Pattern p = Pattern.compile("[0-9]+.[0-9]*|[0-9]*.[0-9]+|[0-9]+");
-        Matcher m = p.matcher(string);
-        boolean found = false;
-        while (m.find()) {
-            sBuffer.append(m.group());
-            found = true;
-        }
-        if(found) {
-            String number = sBuffer.toString();
-            number = number.replaceAll("\\D", ".");
-            String[] parts = number.split("\\.", 2);
-            if(parts.length > 1) {
-                number = parts[0] + "." + parts[1].replaceAll("\\.", "");
-            }
-
-            return number;
-        } else {
-            return null;
+            AmountModel amount = mContainer.getAmount(currentText);
+            canvas.drawText(amount.amount + "/" + amount.total, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
         }
     }
 }

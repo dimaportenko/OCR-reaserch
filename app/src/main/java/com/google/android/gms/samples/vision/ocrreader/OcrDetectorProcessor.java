@@ -56,8 +56,8 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
             TextBlock item = items.valueAt(i);
             if(getNumberFromString(item.getValue()) != null) {
                 itemId = UniqID.generateID();
-                OcrGraphic graphic = new OcrGraphic(mGraphicOverlay, item, itemId);
-                ContainerModel containerModel = new ContainerModel(itemId);
+                ContainerModel containerModel = new ContainerModel(itemId, item);
+                OcrGraphic graphic = new OcrGraphic(mGraphicOverlay, containerModel, itemId);
                 Store.getInstance().setContainer(containerModel);
                 mGraphicOverlay.add(graphic);
             }

@@ -19,6 +19,8 @@ public class AmountPickerFragment extends DialogFragment {
 
     private int mAmount = 1;
     private int mTotalAmount = 1;
+    private AmountPickerFragmentListener listener = null;
+
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -26,12 +28,12 @@ public class AmountPickerFragment extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.amount_picker_dialog, null);
-        NumberPicker amountPicker = (NumberPicker) view.findViewById(R.id.amountPicker);
+        final NumberPicker amountPicker = (NumberPicker) view.findViewById(R.id.amountPicker);
         amountPicker.setMinValue(1);
         amountPicker.setMaxValue(100);
         amountPicker.setValue(mAmount);
 
-        NumberPicker amountPickerTotal = (NumberPicker) view.findViewById(R.id.amountPickerTotal);
+        final NumberPicker amountPickerTotal = (NumberPicker) view.findViewById(R.id.amountPickerTotal);
         amountPickerTotal.setMinValue(1);
         amountPickerTotal.setMaxValue(100);
         amountPickerTotal.setValue(mTotalAmount);
@@ -43,7 +45,9 @@ public class AmountPickerFragment extends DialogFragment {
                 .setPositiveButton(R.string.amount_picker_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        // sign in the user ...
+                        if(listener != null) {
+                            listener.onPositiveButtonClick(amountPicker.getValue(), amountPickerTotal.getValue());
+                        }
                     }
                 })
                 .setNegativeButton(R.string.amount_picker_cancel, new DialogInterface.OnClickListener() {
@@ -54,20 +58,28 @@ public class AmountPickerFragment extends DialogFragment {
         return builder.create();
     }
 
-    public int getmAmount() {
+    public void setAmountPickerFragmentListener(AmountPickerFragmentListener listener) {
+        this.listener = listener;
+    }
+
+    public interface AmountPickerFragmentListener {
+        public void onPositiveButtonClick(int amount, int totalAmount);
+    }
+
+    public int getAmount() {
         return mAmount;
     }
 
-    public void setmAmount(int mAmount) {
+    public void setAmount(int mAmount) {
         this.mAmount = mAmount;
     }
 
 
-    public int getmTotalAmount() {
+    public int getTotalAmount() {
         return mTotalAmount;
     }
 
-    public void setmTotalAmount(int mTotalAmount) {
+    public void setTotalAmount(int mTotalAmount) {
         this.mTotalAmount = mTotalAmount;
     }
 }

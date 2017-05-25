@@ -29,6 +29,10 @@ public class Store implements DataSource {
         mContainers.put(container.getId(), container);
     }
 
+    public ContainerModel getContainer(int id) {
+        return mContainers.get(id);
+    }
+
     public void clearContainers() {
         mContainers.clear();
     }

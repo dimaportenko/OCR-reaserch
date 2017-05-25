@@ -46,6 +46,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.samples.vision.ocrreader.data.AmountModel;
+import com.google.android.gms.samples.vision.ocrreader.data.ContainerModel;
 import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.samples.vision.ocrreader.ui.UIView;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.AmountPickerFragment;
@@ -419,7 +421,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         float rawY = event.getRawY();
 
 
-        OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
+        final OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
         if (graphic != null) {
             int[] location = new int[2];
             mGraphicOverlay.getLocationOnScreen(location);
@@ -439,6 +441,19 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                 }
                 case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION: {
                     AmountPickerFragment pickerFragment = new AmountPickerFragment();
+                    ContainerModel model = Store.getInstance().getContainer(graphic.getId());
+                    AmountModel amountModel = model.getSelectedTextAmount();
+                    pickerFragment.setAmount(amountModel.amount);
+                    pickerFragment.setTotalAmount(amountModel.total);
+                    pickerFragment.setAmountPickerFragmentListener(new AmountPickerFragment.AmountPickerFragmentListener() {
+                        @Override
+                        public void onPositiveButtonClick(int amount, int totalAmount) {
+                            ContainerModel model = Store.getInstance().getContainer(graphic.getId());
+                            model.setSelectedTextAmount(amount, totalAmount);
+                            model.setSelectedText(null);
+                            mGraphicOverlay.invalidate();
+                        }
+                    });
                     pickerFragment.show(getSupportFragmentManager(), "NoticeDialogFragment");
                     break;
                 }
