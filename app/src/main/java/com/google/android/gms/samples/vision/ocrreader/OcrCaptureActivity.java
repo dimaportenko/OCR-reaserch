@@ -430,13 +430,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             switch (result) {
                 case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_SELECT:
                 case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_UNSELECT: {
-                    graphic.updateTotals();
-                    Log.d("totals", "local totals - " + graphic.getTotals());
-                    Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
-                    Float totals = Store.getInstance().getTotals();
-                    Log.d("totals", "totals - " + totals);
-
-                    mTotalsView.setText(totals.toString());
+                    updateTotals(graphic);
                     break;
                 }
                 case OcrGraphic.OCR_GRAPHIC_SELECT_RESULT_SECONDARY_ACTION: {
@@ -451,6 +445,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                             ContainerModel model = Store.getInstance().getContainer(graphic.getId());
                             model.setSelectedTextAmount(amount, totalAmount);
                             model.setSelectedText(null);
+                            updateTotals(graphic);
                             mGraphicOverlay.invalidate();
                         }
                     });
@@ -470,6 +465,14 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         TextBlock text = null;
 
         return text != null;
+    }
+
+    private void updateTotals(OcrGraphic graphic) {
+        graphic.updateTotals();
+        Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
+        Float totals = Store.getInstance().getTotals();
+
+        mTotalsView.setText(totals.toString());
     }
 
     private UIView drawingView;

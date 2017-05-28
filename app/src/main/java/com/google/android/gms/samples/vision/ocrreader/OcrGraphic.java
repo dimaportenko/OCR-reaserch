@@ -196,8 +196,9 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
     public void updateTotals() {
         totals = 0;
         for(Text currentText : mActiveElements) {
+            AmountModel amount = mContainer.getAmount(currentText);
             String number = DataConvertor.getNumberFromString(currentText.getValue());
-            totals += Float.valueOf(number);
+            totals += Float.valueOf(number) * amount.ratio();
         }
     }
 
@@ -217,7 +218,10 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         String value = DataConvertor.getNumberFromString(currentText.getValue());
         if(value != null) {
             sTextPaint.setTextAlign(Paint.Align.CENTER);
-            canvas.drawText(value, rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
+            AmountModel amount = mContainer.getAmount(currentText);
+            String number = DataConvertor.getNumberFromString(value);
+            float calculated = Float.valueOf(number) * amount.ratio();
+            canvas.drawText(String.valueOf(calculated), rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
         }
 
         if(isActive) {
