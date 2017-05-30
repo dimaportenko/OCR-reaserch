@@ -98,6 +98,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     // UI elements
     private TextView mTotalsView;
     private Button mCameraButton;
+    private Button mFocusButton;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -113,6 +114,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
         mTotalsView = (TextView) findViewById(R.id.totals);
         mCameraButton = (Button) findViewById(R.id.camera_button);
+        mFocusButton = (Button) findViewById(R.id.focus_button);
         drawingView = (UIView) findViewById(R.id.uiview);
         drawingViewSet = true;
 
@@ -514,6 +516,19 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
         }
         return false;
+    }
+
+    private boolean isAutoFocus = true;
+    public void focusButtonAction(View view) {
+        if(isAutoFocus) {
+            mCameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
+            mFocusButton.setText(R.string.fixedfocus_button);
+            isAutoFocus = false;
+        } else {
+            mCameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            mFocusButton.setText(R.string.autofocus_button);
+            isAutoFocus = true;
+        }
     }
 
     public void photoButtonAction(View view) {

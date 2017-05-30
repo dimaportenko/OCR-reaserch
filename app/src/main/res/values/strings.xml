@@ -17,4 +17,7 @@
     <string name="amount_picker_message"></string>
     <string name="amount_picker_ok">Ok</string>
     <string name="amount_picker_cancel">Cancel</string>
+    <string name="autofocus_button">Auto</string>
+    <string name="fixedfocus_button">Fixed</string>
+
 </resources>
