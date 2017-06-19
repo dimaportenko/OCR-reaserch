@@ -235,7 +235,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             AmountModel amount = mContainer.getAmount(currentText);
             String number = DataConvertor.getNumberFromString(value);
             float calculated = Float.valueOf(number) * amount.ratio();
-            canvas.drawText(String.valueOf(calculated), rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
+            canvas.drawText(String.format("%.2f", calculated), rect.centerX(), rect.centerY() + sTextPaint.getTextSize() * 0.5f, sTextPaint);
         }
 
         if(isActive) {

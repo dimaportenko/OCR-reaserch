@@ -474,7 +474,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
         Float totals = Store.getInstance().getTotals();
 
-        mTotalsView.setText(totals.toString());
+        mTotalsView.setText(String.format("%.2f", totals));
     }
 
     private UIView drawingView;
