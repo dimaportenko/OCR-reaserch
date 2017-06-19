@@ -1,5 +1,10 @@
 package com.google.android.gms.samples.vision.ocrreader.data;
 
+import android.graphics.Rect;
+import android.graphics.RectF;
+
+import com.google.android.gms.vision.text.Text;
+
 import java.util.HashMap;
 
 /**
@@ -12,10 +17,12 @@ public class Store implements DataSource {
 
     private HashMap<Integer, ContainerModel> mContainers;
     private HashMap<Integer, Float> mTotals;
+    private HashMap<Text, RectF> additionalRects;
 
     private Store() {
         mContainers = new HashMap<Integer, ContainerModel>();
         mTotals = new HashMap<Integer, Float>();
+        additionalRects = new HashMap<Text, RectF>();
     }
 
     public static Store getInstance() {
@@ -40,6 +47,7 @@ public class Store implements DataSource {
     public void clear() {
         clearContainers();
         clearTotals();
+        this.additionalRects.clear();
     }
 
     public void setTotal(Integer id, Float total) {
@@ -57,5 +65,23 @@ public class Store implements DataSource {
         }
 
         return totals;
+    }
+
+    public void addAdditionalRect(Text text, RectF rect) {
+        this.additionalRects.put(text, rect);
+    }
+
+    public void removeAdditianalRect(Text text) {
+        this.additionalRects.remove(text);
+    }
+
+    public boolean isIntersectAdditionalRect(RectF rect) {
+        for (RectF additionalRect : this.additionalRects.values() ) {
+            if (rect.intersect(additionalRect)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

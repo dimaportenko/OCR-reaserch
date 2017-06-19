@@ -25,6 +25,7 @@ import android.graphics.Shader;
 
 import com.google.android.gms.samples.vision.ocrreader.data.AmountModel;
 import com.google.android.gms.samples.vision.ocrreader.data.ContainerModel;
+import com.google.android.gms.samples.vision.ocrreader.data.Store;
 import com.google.android.gms.samples.vision.ocrreader.helper.DataConvertor;
 import com.google.android.gms.samples.vision.ocrreader.helper.UniqID;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
@@ -137,9 +138,16 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         for(Text text : mElements) {
             Rect box = text.getBoundingBox();
             RectF rect = traslateBox(new RectF(box));
-            if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
+            if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y
+                    && !Store.getInstance().isIntersectAdditionalRect(rect)) {
                 mElements.remove(text);
                 mActiveElements.add(text);
+
+                float width = rect.width();
+                rect.left -= width;
+                rect.right -= width;
+                Store.getInstance().addAdditionalRect(text, rect);
+
                 return OCR_GRAPHIC_SELECT_RESULT_SELECT;
             }
         }
@@ -149,6 +157,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y) {
                 mActiveElements.remove(text);
                 mElements.add(text);
+                Store.getInstance().removeAdditianalRect(text);
                 return OCR_GRAPHIC_SELECT_RESULT_UNSELECT;
             }
 
@@ -212,6 +221,11 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         rect.top = translateY(rect.top);
         rect.right = translateX(rect.right);
         rect.bottom = translateY(rect.bottom);
+
+        if(!isActive && Store.getInstance().isIntersectAdditionalRect(rect)) {
+            return;
+        }
+
         sRectPaint.setShader(new RadialGradient(rect.centerX(), rect.centerY(), (float)(rect.width() * 0.5), centerColor, Color.TRANSPARENT, Shader.TileMode.CLAMP));
         canvas.drawOval(rect, sRectPaint);
 
