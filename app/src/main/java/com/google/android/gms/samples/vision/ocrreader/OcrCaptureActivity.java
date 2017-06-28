@@ -613,12 +613,13 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
+
             Log.d(TAG, "Scale factor default - " + detector.getScaleFactor());
             Log.d(TAG, "Scale factor - " + mScaleFactor);
 
             // Don't let the object get too small or too large.
             mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 2.0f));
-            mGraphicOverlay.setScaleFactor(mScaleFactor);
+            mGraphicOverlay.setScaleFactor(mScaleFactor, detector.getFocusX(), detector.getFocusY());
             mGraphicOverlay.invalidate();
 
             return false;

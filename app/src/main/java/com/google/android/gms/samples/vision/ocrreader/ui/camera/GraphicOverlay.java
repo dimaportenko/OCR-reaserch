@@ -194,7 +194,12 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     }
 
     protected float mScaleFactor = 1.f;
-    public void setScaleFactor(float scaleFactor) {
+    protected float offsetX = 0;
+    protected float offsetY = 0;
+    public void setScaleFactor(float scaleFactor, float focusX, float focusY) {
+        float scalechange = scaleFactor - mScaleFactor;
+        offsetX = -(focusX * scalechange);
+        offsetY = -(focusY * scalechange);
         mScaleFactor = scaleFactor;
     }
 
@@ -216,6 +221,8 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.scale(mScaleFactor, mScaleFactor);
+        canvas.translate(offsetX, offsetY);
+
         super.onDraw(canvas);
 
         synchronized (mLock) {
@@ -232,5 +239,6 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
                 graphic.draw(canvas);
             }
         }
+//        canvas.restore();
     }
 }
