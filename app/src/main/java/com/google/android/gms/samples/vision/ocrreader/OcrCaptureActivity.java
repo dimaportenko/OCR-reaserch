@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -41,6 +42,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,9 +98,10 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
 
     // UI elements
-    private TextView mTotalsView;
-    private Button mCameraButton;
-    private Button mFocusButton;
+    private TextView totalsView;
+    private Button cameraButton;
+    private Button focusButton;
+    private ImageButton flashButton;
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -112,9 +115,10 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         mGraphicOverlay = (GraphicOverlay<OcrGraphic>) findViewById(R.id.graphicOverlay);
 
 
-        mTotalsView = (TextView) findViewById(R.id.totals);
-        mCameraButton = (Button) findViewById(R.id.camera_button);
-        mFocusButton = (Button) findViewById(R.id.focus_button);
+        this.totalsView = (TextView) findViewById(R.id.totals);
+        this.cameraButton = (Button) findViewById(R.id.camera_button);
+        this.focusButton = (Button) findViewById(R.id.focus_button);
+        this.flashButton = (ImageButton) findViewById(R.id.flash_button);
         drawingView = (UIView) findViewById(R.id.uiview);
         drawingViewSet = true;
 
@@ -474,7 +478,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         Store.getInstance().setTotal(graphic.getId(), graphic.getTotals());
         Float totals = Store.getInstance().getTotals();
 
-        mTotalsView.setText(String.format("%.2f", totals));
+        totalsView.setText(String.format("%.2f", totals));
     }
 
     private UIView drawingView;
@@ -522,14 +526,28 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     public void focusButtonAction(View view) {
         if(isAutoFocus) {
             mCameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-            mFocusButton.setText(R.string.fixedfocus_button);
+            focusButton.setText(R.string.fixedfocus_button);
             isAutoFocus = false;
         } else {
             mCameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            mFocusButton.setText(R.string.autofocus_button);
+            focusButton.setText(R.string.autofocus_button);
             isAutoFocus = true;
         }
     }
+
+    private boolean isFlash = false;
+    public void flashButtonAction(View view) {
+        if(isFlash) {
+            mCameraSource.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            this.flashButton.setImageDrawable(getDrawable(R.drawable.ic_flash_on_white_24dp));
+            isFlash = false;
+        } else {
+            mCameraSource.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            this.flashButton.setImageDrawable(getDrawable(R.drawable.ic_flash_off_white_24dp));
+            isFlash = true;
+        }
+    }
+
 
     public void photoButtonAction(View view) {
         if(isStopped) {
@@ -544,13 +562,13 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         } else {
             mCameraSource.stop();
             isStopped = true;
-            mCameraButton.setText(getString(R.string.camera_button_alt));
+            this.cameraButton.setText(getString(R.string.camera_button_alt));
         }
     }
 
     public void resetUI() {
-        mTotalsView.setText("");
-        mCameraButton.setText(getString(R.string.camera_button_main));
+        totalsView.setText("");
+        this.cameraButton.setText(getString(R.string.camera_button_main));
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {
