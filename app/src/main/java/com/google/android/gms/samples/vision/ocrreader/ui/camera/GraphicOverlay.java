@@ -16,7 +16,9 @@
 package com.google.android.gms.samples.vision.ocrreader.ui.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -191,17 +193,39 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
         postInvalidate();
     }
 
+    protected float mScaleFactor = 1.f;
+    public void setScaleFactor(float scaleFactor) {
+        mScaleFactor = scaleFactor;
+    }
+
+    private Bitmap mBitmapPicture = null;
+    private Paint paint = new Paint();
+
+    public void setBitmapPicture(Bitmap picture, int width, int height) {
+        mBitmapPicture = Bitmap.createScaledBitmap(picture,
+                (int)(mPreviewWidth * mWidthScaleFactor),
+                (int)(mPreviewHeight * mHeightScaleFactor),
+                true);
+//        mBitmapPicture = Bitmap.createScaledBitmap(picture, width, height, true);
+//        mBitmapPicture = picture;
+    }
+
     /**
      * Draws the overlay with its associated graphic objects.
      */
     @Override
     protected void onDraw(Canvas canvas) {
+        canvas.scale(mScaleFactor, mScaleFactor);
         super.onDraw(canvas);
 
         synchronized (mLock) {
             if ((mPreviewWidth != 0) && (mPreviewHeight != 0)) {
                 mWidthScaleFactor = (float) canvas.getWidth() / (float) mPreviewWidth;
                 mHeightScaleFactor = (float) canvas.getHeight() / (float) mPreviewHeight;
+            }
+
+            if (mBitmapPicture != null) {
+                canvas.drawBitmap(mBitmapPicture, 0, 0, paint);
             }
 
             for (Graphic graphic : mGraphics) {

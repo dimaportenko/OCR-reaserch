@@ -25,6 +25,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.Image;
@@ -94,6 +96,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     private GraphicOverlay<OcrGraphic> mGraphicOverlay;
 
     // Helper objects for detecting taps and pinches.
+    private float mScaleFactor = 1.f;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
 
@@ -344,26 +347,38 @@ public final class OcrCaptureActivity extends AppCompatActivity {
 
     private CameraSource.PictureCallback mPicture = new CameraSource.PictureCallback() {
 
+        private byte[] mPictureData = null;
+
         @Override
         public void onPictureTaken(byte[] data) {
+            Log.d(TAG, "onPictureTaken");
 
             mCameraSource.stop();
+            mPictureData = data;
+            int width = getWindowManager().getDefaultDisplay().getWidth();
+            int height = getWindowManager().getDefaultDisplay().getHeight();
 
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-            if (pictureFile == null){
-                Log.d(TAG, "Error creating media file, check storage permissions: ");
-                return;
-            }
+            BitmapFactory.Options scalingOptions = new BitmapFactory.Options();
+//            scalingOptions.inSampleSize = camera.getParameters().getPictureSize().width / imageView.getMeasuredWidth();
+            final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, scalingOptions);
+            mGraphicOverlay.setBitmapPicture(bmp, width, height);
+            mGraphicOverlay.invalidate();
 
-            try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                fos.close();
-            } catch (FileNotFoundException e) {
-                Log.d(TAG, "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d(TAG, "Error accessing file: " + e.getMessage());
-            }
+//            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//            if (pictureFile == null){
+//                Log.d(TAG, "Error creating media file, check storage permissions: ");
+//                return;
+//            }
+//
+//            try {
+//                FileOutputStream fos = new FileOutputStream(pictureFile);
+//                fos.write(data);
+//                fos.close();
+//            } catch (FileNotFoundException e) {
+//                Log.d(TAG, "File not found: " + e.getMessage());
+//            } catch (IOException e) {
+//                Log.d(TAG, "Error accessing file: " + e.getMessage());
+//            }
         }
     };
     /** Create a File for saving an image or video */
@@ -560,7 +575,8 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             isStopped = false;
             resetUI();
         } else {
-            mCameraSource.stop();
+            mCameraSource.takePicture(null, mPicture);
+//            mCameraSource.stop();
             isStopped = true;
             this.cameraButton.setText(getString(R.string.camera_button_alt));
         }
@@ -596,6 +612,15 @@ public final class OcrCaptureActivity extends AppCompatActivity {
          */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            Log.d(TAG, "Scale factor default - " + detector.getScaleFactor());
+            Log.d(TAG, "Scale factor - " + mScaleFactor);
+
+            // Don't let the object get too small or too large.
+            mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 2.0f));
+            mGraphicOverlay.setScaleFactor(mScaleFactor);
+            mGraphicOverlay.invalidate();
+
             return false;
         }
 
